@@ -21,6 +21,7 @@ client = OpenAI(
 )
 
 TOOL_CHOICE = "auto"
+MAX_STEPS = 10
 
 
 
@@ -40,7 +41,7 @@ while True:
 
     messages.append({"role": "user", "content": user_input})
 
-    while True:
+    for step in range(MAX_STEPS):
         response = client.chat.completions.create(
             model=model,
             messages=messages,
@@ -63,15 +64,20 @@ while True:
             function_to_call = FUNCTION_NAME_TO_FUNCTION_MAP.get(function_name)
 
             if function_to_call:
-                args = (
-                    json.loads(tool_call.function.arguments)
-                    if tool_call.function.arguments
-                    else {}
-                )
                 try:
-                    tool_result = function_to_call(**args)
-                except TypeError:
-                    tool_result = function_to_call()
+                    args = (
+                        json.loads(tool_call.function.arguments)
+                        if tool_call.function.arguments
+                        else {}
+                    )
+                    try:
+                        tool_result = function_to_call(**args)
+                    except TypeError:
+                        tool_result = function_to_call()
+                except Exception as e:
+                    error_msg = f"Failed to execute function '{function_name}': {e}"
+                    print(f"Error: {error_msg}")
+                    tool_result = f"Error: {error_msg}"
 
                 messages.append(
                     {
@@ -81,10 +87,14 @@ while True:
                     }
                 )
             else:
+                error_msg = f"Tool '{function_name}' is not recognized."
+                print(f"Error: {error_msg}")
                 messages.append(
                     {
                         "role": "tool",
                         "tool_call_id": tool_call.id,
-                        "content": f"Error: Tool '{function_name}' is not recognized.",
+                        "content": f"Error: {error_msg}",
                     }
                 )
+    else:
+        print("Assistant: Reached maximum number of steps without completing the request.")
