@@ -1,7 +1,8 @@
+import json
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-from tools import TOOLS, get_current_time
+from tools import TOOLS, FUNCTION_NAME_TO_FUNCTION_MAP
 
 load_dotenv()
 
@@ -20,6 +21,8 @@ client = OpenAI(
 )
 
 TOOL_CHOICE = "auto"
+
+
 
 messages = [
     {
@@ -47,30 +50,48 @@ while True:
     message = response.choices[0].message
 
     if message.tool_calls:
-        tool_call = message.tool_calls[0]
+        messages.append({"role": "assistant", "tool_calls": message.tool_calls})
 
-        if tool_call.function.name == "get_current_time":
-            time_result = get_current_time()
-            messages.append({"role": "assistant", "tool_calls": message.tool_calls})
-            messages.append(
-                {
-                    "role": "tool",
-                    "tool_call_id": tool_call.id,
-                    "content": time_result,
-                }
-            )
+        for tool_call in message.tool_calls:
+            function_name = tool_call.function.name
+            function_to_call = FUNCTION_NAME_TO_FUNCTION_MAP.get(function_name)
 
-            final_response = client.chat.completions.create(
-                model=model,
-                messages=messages,
-                tools=TOOLS,
-                tool_choice=TOOL_CHOICE,
-            )
-            final_text = final_response.choices[0].message.content or "I don't know."
-            messages.append({"role": "assistant", "content": final_text})
-            print("Assistant: " + final_text)
-        else:
-            print("Assistant: I can't do that.")
+            if function_to_call:
+                args = (
+                    json.loads(tool_call.function.arguments)
+                    if tool_call.function.arguments
+                    else {}
+                )
+                try:
+                    tool_result = function_to_call(**args)
+                except TypeError:
+                    tool_result = function_to_call()
+
+                messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "content": str(tool_result),
+                    }
+                )
+            else:
+                messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "content": f"Error: Tool '{function_name}' is not recognized.",
+                    }
+                )
+
+        final_response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            tools=TOOLS,
+            tool_choice=TOOL_CHOICE,
+        )
+        final_text = final_response.choices[0].message.content or "I don't know."
+        messages.append({"role": "assistant", "content": final_text})
+        print("Assistant: " + final_text)
         continue
 
     assistant_reply = message.content or "I don't know."
