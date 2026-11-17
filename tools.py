@@ -1,5 +1,7 @@
 from datetime import datetime
+import json
 import requests
+from Utility.utilities import log
 
 
 def get_current_time():
@@ -80,4 +82,37 @@ FUNCTION_NAME_TO_FUNCTION_MAP = {
     "get_city_weather": get_city_weather,
     "get_current_city": get_current_city,
 }
+
+
+def run_tool(tool_call) -> str:
+    """
+    Executes a tool call from the model, logs the execution details,
+    and returns the result as a string.
+    """
+    function_name = tool_call.function.name
+    function_to_call = FUNCTION_NAME_TO_FUNCTION_MAP.get(function_name)
+
+    if not function_to_call:
+        error_msg = f"Tool '{function_name}' is not recognized."
+        log(f"      Error: {error_msg}")
+        return f"Error: {error_msg}"
+
+    try:
+        args = (
+            json.loads(tool_call.function.arguments)
+            if tool_call.function.arguments
+            else {}
+        )
+        log(f"    🔧 {function_name}({args})")
+        try:
+            tool_result = function_to_call(**args)
+        except TypeError:
+            tool_result = function_to_call()
+        log(f"      ↳ {tool_result}")
+        return str(tool_result)
+    except Exception as e:
+        error_msg = f"Failed to execute function '{function_name}': {e}"
+        log(f"      Error: {error_msg}")
+        return f"Error: {error_msg}"
+
 

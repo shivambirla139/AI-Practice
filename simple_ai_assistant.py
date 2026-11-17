@@ -1,8 +1,8 @@
-import json
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-from tools import TOOLS, FUNCTION_NAME_TO_FUNCTION_MAP
+from tools import TOOLS, run_tool
+from Utility.utilities import log
 
 load_dotenv()
 
@@ -33,10 +33,10 @@ messages = [
 ]
 
 while True:
-    user_input = input("\nYou: ")
+    user_input = input("\n🧑 You: ")
 
     if user_input.lower() in ["exit", "quit", "bye", "goodbye"]:
-        print("Assistant: Goodbye!")
+        print("🤖 Assistant: Goodbye!")
         break
 
     messages.append({"role": "user", "content": user_input})
@@ -54,47 +54,20 @@ while True:
         if not message.tool_calls:
             assistant_reply = message.content or "I don't know."
             messages.append({"role": "assistant", "content": assistant_reply})
-            print("Assistant: " + assistant_reply)
+            print("🤖 Assistant: " + assistant_reply)
             break
 
+        log(f"  Step {step + 1}: model requested {len(message.tool_calls)} tool calls")
         messages.append({"role": "assistant", "tool_calls": message.tool_calls})
 
         for tool_call in message.tool_calls:
-            function_name = tool_call.function.name
-            function_to_call = FUNCTION_NAME_TO_FUNCTION_MAP.get(function_name)
-
-            if function_to_call:
-                try:
-                    args = (
-                        json.loads(tool_call.function.arguments)
-                        if tool_call.function.arguments
-                        else {}
-                    )
-                    try:
-                        tool_result = function_to_call(**args)
-                    except TypeError:
-                        tool_result = function_to_call()
-                except Exception as e:
-                    error_msg = f"Failed to execute function '{function_name}': {e}"
-                    print(f"Error: {error_msg}")
-                    tool_result = f"Error: {error_msg}"
-
-                messages.append(
-                    {
-                        "role": "tool",
-                        "tool_call_id": tool_call.id,
-                        "content": str(tool_result),
-                    }
-                )
-            else:
-                error_msg = f"Tool '{function_name}' is not recognized."
-                print(f"Error: {error_msg}")
-                messages.append(
-                    {
-                        "role": "tool",
-                        "tool_call_id": tool_call.id,
-                        "content": f"Error: {error_msg}",
-                    }
-                )
+            tool_result = run_tool(tool_call)
+            messages.append(
+                {
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": tool_result,
+                }
+            )
     else:
-        print("Assistant: Reached maximum number of steps without completing the request.")
+        print("🤖 Assistant: Reached maximum number of steps without completing the request.")
