@@ -22,6 +22,13 @@ def get_city_weather(city_name):
         return f"Error fetching weather: {e}"
 
 
+def get_current_city():
+    """
+    Returns the user's current city or location.
+    """
+    return "bangalore"
+
+
 # This tools list is meant to be passed to the LLM in chat.completions.create(..., tools=tools)
 TOOLS = [
     {
@@ -52,6 +59,18 @@ TOOLS = [
                 "required": ["city_name"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_city",
+            "description": "Get the user's currently lived-in city or location. Use this when the user asks about 'my location', 'my city', 'my place', or where they currently live.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
     }
 ]
 
@@ -59,5 +78,6 @@ TOOLS = [
 FUNCTION_NAME_TO_FUNCTION_MAP = {
     "get_current_time": get_current_time,
     "get_city_weather": get_city_weather,
+    "get_current_city": get_current_city,
 }
 

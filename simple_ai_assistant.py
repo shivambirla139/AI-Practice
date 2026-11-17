@@ -27,7 +27,7 @@ TOOL_CHOICE = "auto"
 messages = [
     {
         "role": "system",
-        "content": "You are a helpful assistant. Keep your responses concise. Only call the get_current_time tool when the user asks for the current date or time.",
+        "content": "You are a helpful assistant. Keep your responses concise. Use available tools when appropriate.",
     }
 ]
 
@@ -40,16 +40,22 @@ while True:
 
     messages.append({"role": "user", "content": user_input})
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        tools=TOOLS,
-        tool_choice=TOOL_CHOICE,
-    )
+    while True:
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            tools=TOOLS,
+            tool_choice=TOOL_CHOICE,
+        )
 
-    message = response.choices[0].message
+        message = response.choices[0].message
 
-    if message.tool_calls:
+        if not message.tool_calls:
+            assistant_reply = message.content or "I don't know."
+            messages.append({"role": "assistant", "content": assistant_reply})
+            print("Assistant: " + assistant_reply)
+            break
+
         messages.append({"role": "assistant", "tool_calls": message.tool_calls})
 
         for tool_call in message.tool_calls:
@@ -82,18 +88,3 @@ while True:
                         "content": f"Error: Tool '{function_name}' is not recognized.",
                     }
                 )
-
-        final_response = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            tools=TOOLS,
-            tool_choice=TOOL_CHOICE,
-        )
-        final_text = final_response.choices[0].message.content or "I don't know."
-        messages.append({"role": "assistant", "content": final_text})
-        print("Assistant: " + final_text)
-        continue
-
-    assistant_reply = message.content or "I don't know."
-    messages.append({"role": "assistant", "content": assistant_reply})
-    print("Assistant: " + assistant_reply)
