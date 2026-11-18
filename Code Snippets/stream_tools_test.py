@@ -1,6 +1,11 @@
 # standard library imports
 import os
+import sys
+from pathlib import Path
 from types import SimpleNamespace
+
+# Add project root to sys.path so top-level modules like tools.py can be found
+sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 # Third-party imports
 from openai import OpenAI
@@ -45,3 +50,9 @@ for chunk in stream:
 calls_list = []
 for key in sorted(calls):
     calls_list.append(calls[key])
+
+print("Reconstructed Tool Calls:")
+for call in calls_list:
+    print(f"ID: {call.id}")
+    print(f"Function: {call.function.name}")
+    print(f"Arguments: {call.function.arguments}")
