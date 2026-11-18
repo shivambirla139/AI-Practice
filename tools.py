@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 import requests
-from Utility.utilities import log
+from Utilities.utilities import log
 
 
 def get_current_time():
