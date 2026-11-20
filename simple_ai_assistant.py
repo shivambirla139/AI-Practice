@@ -11,6 +11,7 @@ from tools import TOOLS, run_tool
 from Utilities.utilities import log
 
 
+
 load_dotenv() #by default looks for .env file
 
 client = OpenAI(
@@ -29,7 +30,7 @@ messages.append(
         "content": (
             "You are a helpful, humble assistant for Zorvex Technologies employees. "
             "Answer general questions (programming, science, advice) from your own knowledge. "
-            "Use get_current_time, get_city_weather and get_current_city only for the current time, the weather, or the user's city. "
+            "Use get_current_time, get_city_weather and get_user_city only for the current time, the weather, or the user's city. "
             "For ANY question about Zorvex policies, benefits, leave, medical cover, HR, hiring, tech processes, incident reports or travel expenses, "
             "you MUST first call search_knowledge_base. "
             "Answer company questions ONLY from the text that search_knowledge_base returns. Do not use outside knowledge for company facts. "
@@ -119,7 +120,7 @@ def build_tool_calls_payload(tool_calls):
 # Chat loop starts from here
 while True:
 
-    user_input = input("\n👦🏻 Shivam: ")
+    user_input = input("\n👦🏻 MIK: ")
     
     if user_input.lower() in ["exit", "quit", "bye", "goodbye"]:
         break
@@ -144,7 +145,7 @@ while True:
 
         messages.append({
             "role": "assistant",
-            "content": full_response or None,
+            "content": full_response,
             "tool_calls": build_tool_calls_payload(tool_calls)
         })
 

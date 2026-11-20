@@ -7,7 +7,7 @@ load_dotenv() #by default looks for .env file
 
 client = OpenAI(
     base_url=os.getenv("BASE_URL"),
-    api_key=os.getenv("api_key")
+    api_key=os.getenv("API_KEY")
 )
 
 EMBED_MODEL = os.getenv("EMBED_MODEL")
