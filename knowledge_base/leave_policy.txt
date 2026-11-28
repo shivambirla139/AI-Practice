@@ -1,5 +1,5 @@
 Leave Policy - Casual Leave
-Every employee at Zorvex Technologies gets 12 days of casual leave per year. Casual leave must be applied at least one day in advance and cannot be carried forward.
+Every employee at Shivam Technologies gets 12 days of casual leave per year. Casual leave must be applied at least one day in advance and cannot be carried forward.
 
 Leave Policy - Earned Leave
 Employees earn 1.5 days of earned leave per month, which is 18 days per year. Up to 30 days of earned leave can be carried forward to the next year.
@@ -11,4 +11,4 @@ Leave Policy - Maternity and Paternity Leave
 Maternity leave is 26 weeks of paid leave. Paternity leave is 10 working days and must be taken within 3 months of the child's birth.
 
 Leave Policy - Applying for Leave
-Leave must be applied for in the Zorvex PeopleHub portal and approved by the reporting manager. An unapproved absence of more than 3 days is treated as unauthorized absence.
+Leave must be applied for in the Shivam PeopleHub portal and approved by the reporting manager. An unapproved absence of more than 3 days is treated as unauthorized absence.

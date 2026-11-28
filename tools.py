@@ -78,7 +78,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "search_knowledge_base",
-            "description" : "Searches the Zorvex Technologies company knowledge base: leave, medical, HR, hiring, tech, incident "
+            "description" : "Searches the Shivam Technologies company knowledge base: leave, medical, HR, hiring, tech, incident "
                             "reports and travel expense policies. Use it for any question about company policies or documents. "
                             "Returns the most relevant passages with their source.",
             "parameters": {

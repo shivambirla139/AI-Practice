@@ -39,8 +39,8 @@ for s in documents:
 
 chroma = chromadb.PersistentClient(path="./chromadbStorage")
 
-zorvex_collection = chroma.get_or_create_collection(
-    name="zorvex_technology",
+shivam_collection = chroma.get_or_create_collection(
+    name="shivam_technologies",
     configuration={
         "hnsw": {
             "space": "cosine",
@@ -48,7 +48,7 @@ zorvex_collection = chroma.get_or_create_collection(
     }
 )
 
-zorvex_collection.upsert( #It will update if an Id is existing, otherwise it will insert a new record
+shivam_collection.upsert( #It will update if an Id is existing, otherwise it will insert a new record
     ids=ids,
     documents=documents,
     embeddings=embeddings,
@@ -58,7 +58,7 @@ zorvex_collection.upsert( #It will update if an Id is existing, otherwise it wil
 query = "When is the production deployment allowed ? "
 query_embdding = get_embedding(query)
 
-results = zorvex_collection.query(
+results = shivam_collection.query(
     query_embeddings=[query_embdding],
     n_results=1
 )
